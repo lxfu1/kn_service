@@ -11,7 +11,6 @@ var travel = async (ctx, next) => {
     await dbModel.getTravel().then(result => {
         res = result;
     });
-    ctx.response.type = "application/json";
     ctx.response.body = jsonMiddle(res);
 };
 

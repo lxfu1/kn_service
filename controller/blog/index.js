@@ -28,7 +28,6 @@ const createArticle = async (ctx, next) => {
     await dbModel.addArticle(params).then(result => {
         res = "插入成功";
     });
-    ctx.response.type = "application/json";
     ctx.response.body = jsonMiddle(res);
 };
 
@@ -36,7 +35,6 @@ const uploadArticleFile  = async (ctx, next) => {
     let data = {
         fileUrl: (ctx.request.files.file.path).replace(/\\/g, '/').split('kn_service')[1]
     }
-    ctx.response.type = "application/json";
     ctx.response.body = jsonMiddle(data);
 }
 

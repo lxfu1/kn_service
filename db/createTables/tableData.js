@@ -80,7 +80,8 @@ const userData = [
         username: 'kn',
         password: md5.update('123456').digest("hex"),
         tel: '18302601558',
-        headUrl: ''
+        headUrl: '',
+        createTime: new Date().toLocaleDateString()
     }
 ];
 

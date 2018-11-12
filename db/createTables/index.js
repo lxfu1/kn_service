@@ -20,7 +20,8 @@ const user = {
     username: Sequelize.STRING,
     password: Sequelize.STRING,
     tel: Sequelize.STRING(11),
-    headUrl: Sequelize.STRING
+    headUrl: Sequelize.STRING,
+    createTime: Sequelize.DATE
 };
 
 // 标签表
@@ -86,10 +87,24 @@ const comment = {
     commentTime: Sequelize.DATE,
 };
 
-const users = sequelize.define('user', user, {timeStamp: true});
-const labels = sequelize.define('label', label, {timeStamp: true});
-const articles = sequelize.define('article', article, {timeStamp: true});
-const comments = sequelize.define('comment', comment, {timeStamp: true});
+// 搜索历史表
+const history = {
+    searchId: {
+        type: Sequelize.STRING,
+        primaryKey: true,
+        allowNull: false
+    },
+    keyword: Sequelize.STRING,
+    type: Sequelize.STRING,
+    searchTime: Sequelize.DATE,
+    counts: Sequelize.INTEGER
+}
+
+const users = sequelize.define('user', user, {timestamps: false});
+const labels = sequelize.define('label', label, {timestamps: false});
+const articles = sequelize.define('article', article, {timestamps: false});
+const comments = sequelize.define('comment', comment, {timestamps: false});
+const histories = sequelize.define('history', history, {timestamps: false});
 
 const loopCreateData = [
     {
@@ -107,6 +122,10 @@ const loopCreateData = [
     {
         tableName: comments,
         tableData: commentData
+    },
+    {
+        tableName: histories,
+        tableData: []
     }
 ];
 
@@ -115,13 +134,13 @@ const loopCreateData = [
  */
 const createTables = (() => {
     loopCreateData.forEach(item => {
-        item.tableName.sync().then(res => {
+        item.tableName.sync({force: true}).then(res => {
             item.tableData.forEach(inner => {
                 item.tableName.create(inner);
             })
         })
-        console.log('创建成功');
     })
+    console.log('创建成功');
 })();
 
 module.exports = createTables;

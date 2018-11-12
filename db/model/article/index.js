@@ -30,7 +30,19 @@ const articleTopFive = {
     scans:  Sequelize.INTEGER,
 };
 
+const searchHistory = {
+    searchId: {
+        type: Sequelize.STRING(50),
+        primaryKey: true
+    },
+    type: Sequelize.STRING,
+    keyword: Sequelize.STRING,
+    counts:  Sequelize.INTEGER,
+    searchTime: Sequelize.DATE
+}
+
 module.exports = {
     articleList,
-    articleTopFive
+    articleTopFive,
+    searchHistory
 };

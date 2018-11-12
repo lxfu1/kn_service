@@ -9,7 +9,7 @@ const {templating, staticFiles} = require('./utils');
 const views = require('koa-views');
 //const bodyParser = require('koa-bodyparser');
 // 创建表用的，自执行函数
-//require('./db/createTables');
+// require('./db/createTables');
 const koaBody = require('koa-body');
 const BaseConfig =  require('./config/default-config');
 const Router = require('./routers');
@@ -33,11 +33,14 @@ app.use(json());
 // app.use(bodyParser());
 app.use(koaBody({
     multipart: true, // 支持文件上传
-    encoding: 'gzip',
+    encoding: 'utf-8',
     formidable:{
         uploadDir: path.join(__dirname,'static/upload/'), // 设置文件上传目录
         keepExtensions: true,    // 保持文件的后缀
         maxFieldsSize: 2 * 1024 * 1024, // 文件上传大小
+    },
+    onError:function(err){
+        console.log('出现错误了', err)
     }
 }));
 

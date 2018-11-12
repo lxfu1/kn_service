@@ -8,7 +8,7 @@ const getUrl = (url) => {
     var params = _url.split('&');
     for(let i = 0; i < params.length; i++){
         var kv = params[i].split('=');
-        res[kv[0]] = kv[1];
+        res[kv[0]] = decodeURI(kv[1]);
     }
 
     return res;
