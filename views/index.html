@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="/static/js/jquery.js"></script>
+</head>
+<body>
+<p>我是习大大</p>
+<button id="btn">点我啊</button>
+<p id="bbd"></p>
+<script>
+$('#btn').on('click', function(){
+    $.get('/user/kn', function(res){
+        console.log(res);
+        $('#bbd').text(1);
+    })
+})
+</script>
+</body>
+</html>
