@@ -18,6 +18,22 @@ const isProduction = process.env.NODE_ENV === 'production';
 const app = new Koa();
 
 /**
+ * 中间件， 防止服务器挂掉
+ * */
+app.use(async (ctx,next) => {
+    try{
+        await next()
+    }catch(err){
+        ctx.response.status = err.statusCode || err.status || 500;
+        ctx.response.body = {
+            status: err.statusCode || err.status || 500,
+            message: err.message
+        };
+        // 手动释放error事件
+        ctx.app.emit('error', err, ctx);
+    }
+});
+/**
  * 解决跨域问题
  * */
 app.use(cors());
@@ -40,7 +56,7 @@ app.use(koaBody({
         maxFieldsSize: 2 * 1024 * 1024, // 文件上传大小
     },
     onError:function(err){
-        console.log('出现错误了', err)
+        console.log('server error', err)
     }
 }));
 
@@ -56,4 +72,9 @@ app.use(templating('views', {
     watch: !isProduction
 }));
 app.use(Router.routes());
+
+// 捕获所有的异常
+app.on('error', (err, ctx) => {
+    console.error('server error', err);
+});
 app.listen(BaseConfig.port);

@@ -81,6 +81,8 @@ const userData = [
         password: md5.update('123456').digest("hex"),
         tel: '18302601558',
         headUrl: '',
+        articles: 0,
+        commented: 0,
         createTime: new Date().toLocaleDateString()
     }
 ];

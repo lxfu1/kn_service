@@ -21,6 +21,8 @@ const user = {
     password: Sequelize.STRING,
     tel: Sequelize.STRING(11),
     headUrl: Sequelize.STRING,
+    articles: Sequelize.INTEGER,
+    commented: Sequelize.INTEGER,
     createTime: Sequelize.DATE
 };
 

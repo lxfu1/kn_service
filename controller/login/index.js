@@ -34,8 +34,17 @@ const logout = async (ctx, next) => {
     ctx.response.body = jsonMiddle('退出成功');
 };
 
+const recommendUser = async (ctx, next) => {
+    let res;
+    await dbModel.getRecommendUser().then(result => {
+        res = result;
+    })
+    ctx.response.body = jsonMiddle(res);
+}
+
 module.exports = {
     imgCode,
     userInfo,
-    logout
+    logout,
+    recommendUser
 };

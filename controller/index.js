@@ -13,18 +13,20 @@ const {
 
 // 空闲小写
 const {
-        articleList,
-        articleDetail,
-        topFiveList,
-        search,
-        searchHistory
+    articleList,
+    articleDetail,
+    topFiveList,
+    search,
+    searchHistory,
+    searchByTime
     } = require('./article');
 
 // 登录注册
 const {
     imgCode,
     userInfo,
-    logout
+    logout,
+    recommendUser
     } = require('./login');
 
 module.exports = {
@@ -34,7 +36,9 @@ module.exports = {
     'POST /kn/addArticle': createArticle,
     'POST /kn/upload': uploadArticleFile,
     'GET /kn/articleList': articleList,
+    'GET /kn/searchByTime': searchByTime,
     'GET /kn/search': search,
+    'GET /kn/recommendAuthor': recommendUser,
     'GET /kn/searchHistory': searchHistory,
     'GET /kn/articleTopFive': topFiveList,
     'GET /kn/getArticleDetail/:id': articleDetail,

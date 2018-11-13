@@ -45,10 +45,20 @@ const searchHistory = async (ctx, next) => {
     ctx.response.body = jsonMiddle(res);
 }
 
+const searchByTime = async (ctx, next) => {
+    let {page, size, type} = getUrl(ctx.request.url);
+    let res = {};
+    await dbModel.searchArticleByTime(page, size, type).then(result => {
+        res = result;
+    });
+    ctx.response.body = jsonMiddle(res);
+};
+
 module.exports = {
     articleList,
     articleDetail,
     topFiveList,
     search,
-    searchHistory
+    searchHistory,
+    searchByTime
 };

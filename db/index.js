@@ -88,6 +88,24 @@ exports.searchArticle = (keyword, page, size, type) => {
     return res;
 }
 
+/**
+ * 热门文章查询
+ * 查询最近7天或者30天访问量
+ * */
+exports.searchArticleByTime = (page, size, type) => {
+    let res = articleModel.findAndCountAll({
+        where: {
+            createTime: {
+                [Op.gt]: new Date(new Date() - (type == 7 ? 7 : 30) * 24 * 60 * 60 * 1000)
+            }
+        },
+        order: [['createTime', 'desc']],
+        limit: size * 1,
+        offset: (page - 1) * size,
+    });
+    return res;
+}
+
 //修改文章访问量
 exports.updateScans = (articleId, scans) => {
     articleModel.update({
@@ -106,6 +124,7 @@ exports.getTopFive = () => {
         order: [['scans', 'desc']]
     });
 };
+
 // 用户信息查询
 exports.getUserInfo = (username) => {
     return userModel.findOne({
@@ -113,7 +132,18 @@ exports.getUserInfo = (username) => {
            username: username
        }
     });
-}
+};
+/**
+ * 查询推荐用户
+ * 发表文章较多的用户
+ * */
+exports.getRecommendUser = () => {
+    return userModel.findAll({
+        limit: 6,
+        offset: 0,
+        order: [['articles', 'desc']]
+    });
+};
 
 exports.getHistory = (page, size) => {
     return historyModel.findAndCountAll({
