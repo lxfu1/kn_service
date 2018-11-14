@@ -1,33 +1,150 @@
+/**
+ * author: kn
+ * 创建表
+ * */
+const Sequelize = require('sequelize');
 const sequelize = require('../connect');
-const {travel} = require('./home');
-const {
-    articleType,
-    article
-    } = require('./blog');
-const {
-    articleList,
-    articleTopFive,
-    searchHistory
-    } = require('./article');
 
-const {
-    user
-    } = require('./login');
+//用户表
+const user = {
+    userId: {
+        type: Sequelize.STRING,
+        unique: true,
+        primaryKey: true,
+    },
+    username: Sequelize.STRING,
+    password: Sequelize.STRING,
+    phone: {
+        type: Sequelize.STRING(11),
+        unique: true,
+    },
+    headUrl: Sequelize.STRING,
+    articleCount: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0
+    },
+    commentCount: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0
+    },
+    createTime: Sequelize.DATE
+};
 
-const travelModel = sequelize.define('travel', travel, {timestamps: false});
-const typesModel = sequelize.define('label', articleType, {timestamps: false});
-const createArticleModel = sequelize.define('article', article, {timestamps: false});
-const articleModel = sequelize.define('article', articleList, {timestamps: false});
-const topModel = sequelize.define('article', articleTopFive, {timestamps: false});
+// 标签表
+const label = {
+    labelId: {
+        type: Sequelize.STRING,
+        unique: true,
+        primaryKey: true,
+    },
+    type: Sequelize.STRING,
+    text: Sequelize.STRING,
+    articleCounts: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0
+    }
+};
+
+// 文章表
+const article = {
+    articleId: {
+        type: Sequelize.STRING,
+        primaryKey: true,
+        allowNull: false
+    },
+    labelId: {
+        type: Sequelize.STRING
+    },
+    title: {
+        type: Sequelize.STRING,
+        allowNull: false
+    },
+    userId: {
+        type: Sequelize.STRING,
+    },
+    introduction: Sequelize.STRING(500),
+    fileUrl: Sequelize.STRING,
+    detail: Sequelize.TEXT,
+    createTime: Sequelize.DATE,
+    updateTime: Sequelize.DATE,
+    mk: Sequelize.STRING,
+    scans: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0
+    },
+    comments: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0
+    }
+};
+
+// 评论表
+const comment = {
+    commentId: {
+        type: Sequelize.STRING,
+        primaryKey: true,
+        allowNull: false
+    },
+    comments: {
+        type: Sequelize.STRING,
+        allowNull: false
+    },
+    sourceUserId: {
+        type: Sequelize.STRING,
+        allowNull: false
+    },
+    targetUserId: {
+        type: Sequelize.STRING,
+        allowNull: false
+    },
+    articleId: {
+        type: Sequelize.STRING,
+        allowNull: false
+    },
+    commentTime: Sequelize.DATE,
+};
+
+// 搜索历史表
+const history = {
+    searchId: {
+        type: Sequelize.STRING,
+        primaryKey: true,
+        allowNull: false
+    },
+    keyword: Sequelize.STRING,
+    type: Sequelize.STRING,
+    searchTime: Sequelize.DATE,
+    counts: Sequelize.INTEGER
+};
+
+// 关注表
+const attention = {
+    id: {
+        type: Sequelize.STRING,
+        primaryKey: true,
+        allowNull: false
+    },
+    userId: Sequelize.STRING,
+    followedUser: Sequelize.TEXT,
+    follower: Sequelize.TEXT,
+    createAt: Sequelize.DATE,
+    updateAt: Sequelize.DATE
+};
+
 const userModel = sequelize.define('user', user, {timestamps: false});
-const historyModel = sequelize.define('history', searchHistory, {timestamps: false});
+const labelModel = sequelize.define('label', label, {timestamps: false});
+const articleModel = sequelize.define('article', article, {timestamps: false});
+const commentModel = sequelize.define('comment', comment, {timestamps: false});
+const historyModel = sequelize.define('history', history, {timestamps: false});
+const attentionModel = sequelize.define('attention', attention, {timestamps: false});
+articleModel.belongsTo(userModel, {foreignKey: 'userId'});
+articleModel.belongsTo(labelModel, {foreignKey: 'labelId'});
 
 module.exports = {
-    travelModel,
-    typesModel,
-    createArticleModel,
-    articleModel,
-    topModel,
     userModel,
-    historyModel
+    labelModel,
+    articleModel,
+    commentModel,
+    historyModel,
+    attentionModel
 }

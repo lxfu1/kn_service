@@ -7,16 +7,23 @@ const cors = require('koa-cors');
 const json = require('koa-json');
 const {templating, staticFiles} = require('./utils');
 const views = require('koa-views');
-//const bodyParser = require('koa-bodyparser');
-// 创建表用的，自执行函数
-// require('./db/createTables');
 const koaBody = require('koa-body');
 const BaseConfig =  require('./config/default-config');
 const Router = require('./routers');
-
+/**
+ * redis服务
+ * 需要本地启动
+ * */
+const redis = require('redis');
+const client = redis.createClient({
+    host: process.env.REDIS_HOST || '127.0.0.1',
+    port: process.env.REDIS_PORT || 6379,
+});
+// 创建表用的，自执行函数
+// require('./db/createTables');
 const isProduction = process.env.NODE_ENV === 'production';
 const app = new Koa();
-
+global.redisClient = client;
 /**
  * 中间件， 防止服务器挂掉
  * */
@@ -33,6 +40,7 @@ app.use(async (ctx,next) => {
         ctx.app.emit('error', err, ctx);
     }
 });
+
 /**
  * 解决跨域问题
  * */

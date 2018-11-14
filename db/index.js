@@ -2,51 +2,61 @@ const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 
 const {
-    travelModel,
-    typesModel,
-    createArticleModel,
-    articleModel,
-    topModel,
     userModel,
-    historyModel
+    labelModel,
+    articleModel,
+    commentModel,
+    historyModel,
+    attentionModel
     } = require('./model');
 
-// 获取首页旅游信息
-exports.getTravel = () => {
-    return travelModel.findAll();
-}
-
-// 获取文章类型
-exports.articleTypes = () => {
-    return typesModel.findAll();
+/**
+ * 获取文章类型
+ * limit: 是否有限制
+ * 最多返回200条
+ * */
+exports.articleTypes = (limit) => {
+    return labelModel.findAll({
+        limit: limit ? parseInt(limit) : 200
+    });
 }
 
 //添加文章
 exports.addArticle = (ctx) => {
+    console.log(ctx.type);
     var now = Date.now();
     var date = new Date();
-    return createArticleModel.create({
+    return articleModel.create({
         articleId: 'article_' + now,
-        type: ctx.type,
         title: ctx.title,
         introduction: ctx.introduction,
         fileUrl: ctx.fileUrl || '',
         detail: ctx.detail,
+        userId: ctx.userId,
+        labelId: ctx.type,
         createTime: date.toLocaleString(),
         updateTime: date.toLocaleString()
     });
 }
 
-
 /**
- * 文章查询
- * 列表查询
+ * 文章列表查询
  * */
 exports.getArticles = (page, size) => {
     return articleModel.findAndCountAll({
         limit: size * 1,
         offset: (page - 1) * size,
-        order: [['updateTime', 'desc']]
+        order: [['updateTime', 'desc']],
+        include:[
+            {
+                model: userModel,
+                required: true
+            },
+            {
+                model: labelModel,
+                required: true
+            }
+        ]
     });
 }
 
@@ -56,7 +66,17 @@ exports.getArticleDetail = (articleId) => {
         where: {
             articleId: articleId
         },
-        limit: 1
+        limit: 1,
+        include:[
+            {
+                model: userModel,
+                required: true
+            },
+            {
+                model: labelModel,
+                required: true
+            }
+        ]
     });
     return res;
 }
@@ -74,16 +94,21 @@ exports.searchArticle = (keyword, page, size, type) => {
                     title: {
                         [Op.like]: `%${keyword}%`,
                     }
-                },
-                {
-                    type: {
-                        [Op.like]: `%${keyword}%`,
-                    }
                 }
             ]
         },
         limit: size * 1,
         offset: (page - 1) * size,
+        include:[
+            {
+                model: userModel,
+                required: true
+            },
+            {
+                model: labelModel,
+                required: true
+            }
+        ]
     });
     return res;
 }
@@ -102,6 +127,16 @@ exports.searchArticleByTime = (page, size, type) => {
         order: [['createTime', 'desc']],
         limit: size * 1,
         offset: (page - 1) * size,
+        include:[
+            {
+                model: userModel,
+                required: true
+            },
+            {
+                model: labelModel,
+                required: true
+            }
+        ]
     });
     return res;
 }
@@ -119,17 +154,17 @@ exports.updateScans = (articleId, scans) => {
 
 // 阅读量统计
 exports.getTopFive = () => {
-    return topModel.findAll({
+    return articleModel.findAll({
         limit: 5,
         order: [['scans', 'desc']]
     });
 };
 
 // 用户信息查询
-exports.getUserInfo = (username) => {
+exports.getUserInfo = (phone) => {
     return userModel.findOne({
        where: {
-           username: username
+           phone: phone
        }
     });
 };
@@ -141,8 +176,36 @@ exports.getRecommendUser = () => {
     return userModel.findAll({
         limit: 6,
         offset: 0,
-        order: [['articles', 'desc']]
+        order: [['articleCount', 'desc']]
     });
+};
+
+/**
+ * 添加用户
+ * */
+exports.addUser = (params) => {
+    return userModel.create(
+        {
+            userId: 'yd_' + Date.now(),
+            username: params.username,
+            password: params.password,
+            phone: params.phone,
+            createTime: new Date().toDateString()
+        }
+    );
+};
+
+/**
+ * 添加文章类型
+ * */
+exports.addLabels = (labelName, userId) => {
+    return labelModel.create(
+        {
+            labelId: 'label_' + Date.now(),
+            type: 'type_' + userId,
+            text: labelName,
+        }
+    );
 };
 
 exports.getHistory = (page, size) => {
