@@ -2,21 +2,21 @@
  * author: kn
  * 创建表
  * */
-const Sequelize = require('sequelize');
-const sequelize = require('../connect');
+const Sequelize = require("sequelize");
+const sequelize = require("../connect");
 
 //用户表
 const user = {
     userId: {
         type: Sequelize.STRING,
         unique: true,
-        primaryKey: true,
+        primaryKey: true
     },
     username: Sequelize.STRING,
     password: Sequelize.STRING,
     phone: {
         type: Sequelize.STRING(11),
-        unique: true,
+        unique: true
     },
     headUrl: Sequelize.STRING,
     articleCount: {
@@ -27,6 +27,14 @@ const user = {
         type: Sequelize.INTEGER,
         defaultValue: 0
     },
+    role: {
+        type: Sequelize.STRING,
+        defaultValue: "commonUser"
+    },
+    attentionId: {
+        type: Sequelize.STRING
+    },
+    describe: Sequelize.STRING(500),
     createTime: Sequelize.DATE
 };
 
@@ -35,7 +43,7 @@ const label = {
     labelId: {
         type: Sequelize.STRING,
         unique: true,
-        primaryKey: true,
+        primaryKey: true
     },
     type: Sequelize.STRING,
     text: Sequelize.STRING,
@@ -53,14 +61,17 @@ const article = {
         allowNull: false
     },
     labelId: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        unique: "article_store"
     },
     title: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
+        unique: "article_store"
     },
     userId: {
         type: Sequelize.STRING,
+        unique: "article_store"
     },
     introduction: Sequelize.STRING(500),
     fileUrl: Sequelize.STRING,
@@ -101,7 +112,7 @@ const comment = {
         type: Sequelize.STRING,
         allowNull: false
     },
-    commentTime: Sequelize.DATE,
+    commentTime: Sequelize.DATE
 };
 
 // 搜索历史表
@@ -119,26 +130,26 @@ const history = {
 
 // 关注表
 const attention = {
-    id: {
+    attentionId: {
         type: Sequelize.STRING,
-        primaryKey: true,
-        allowNull: false
+        primaryKey: true
     },
-    userId: Sequelize.STRING,
     followedUser: Sequelize.TEXT,
     follower: Sequelize.TEXT,
     createAt: Sequelize.DATE,
     updateAt: Sequelize.DATE
 };
 
-const userModel = sequelize.define('user', user, {timestamps: false});
-const labelModel = sequelize.define('label', label, {timestamps: false});
-const articleModel = sequelize.define('article', article, {timestamps: false});
-const commentModel = sequelize.define('comment', comment, {timestamps: false});
-const historyModel = sequelize.define('history', history, {timestamps: false});
-const attentionModel = sequelize.define('attention', attention, {timestamps: false});
-articleModel.belongsTo(userModel, {foreignKey: 'userId'});
-articleModel.belongsTo(labelModel, {foreignKey: 'labelId'});
+const attentionModel = sequelize.define("attention", attention, { timestamps: false });
+const userModel = sequelize.define("user", user, { timestamps: false });
+const labelModel = sequelize.define("label", label, { timestamps: false });
+const articleModel = sequelize.define("article", article, { timestamps: false });
+const commentModel = sequelize.define("comment", comment, { timestamps: false });
+const historyModel = sequelize.define("history", history, { timestamps: false });
+
+articleModel.belongsTo(userModel, { foreignKey: "userId" });
+articleModel.belongsTo(labelModel, { foreignKey: "labelId" });
+userModel.belongsTo(attentionModel, { foreignKey: "attentionId" });
 
 module.exports = {
     userModel,
@@ -147,4 +158,4 @@ module.exports = {
     commentModel,
     historyModel,
     attentionModel
-}
+};

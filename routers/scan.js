@@ -28,6 +28,12 @@ function addMapping(router, mapping){
         }else if(url.startsWith('POST')){
             var path = url.substring(5);
             router.post(path, mapping[url]);
+        }else if(url.startsWith('PUT')){
+            var path = url.substring(4);
+            router.put(path, mapping[url]);
+        }else if(url.startsWith('DELETE')){
+            var path = url.substring(7);
+            router.del(path, mapping[url]);
         }else{
             console.log('不支持的请求方式');
         }
