@@ -1,86 +1,86 @@
-const crypto = require('crypto');
+const crypto = require("crypto");
 const md5 = crypto.createHash("md5");
 
 // lables数据
 const labelData = [
     {
-        type: 'node.js',
-        text: 'node.js'
+        type: "node.js",
+        text: "node.js"
     },
     {
-        type: 'qkl',
-        text: '区块链'
+        type: "qkl",
+        text: "区块链"
     },
     {
-        type: 'wx',
-        text: '小程序'
+        type: "wx",
+        text: "小程序"
     },
     {
-        type: 'php',
-        text: 'php'
+        type: "php",
+        text: "php"
     },
     {
-        type: 'money',
-        text: '理财'
+        type: "money",
+        text: "理财"
     },
     {
-        type: 'foods',
-        text: '美食'
+        type: "foods",
+        text: "美食"
     },
     {
-        type: 'story',
-        text: '故事'
+        type: "story",
+        text: "故事"
     },
     {
-        type: 'travel',
-        text: '旅游'
+        type: "travel",
+        text: "旅游"
     },
     {
-        type: 'html',
-        text: 'html'
+        type: "html",
+        text: "html"
     },
     {
-        type: 'javascript',
-        text: 'javascript'
+        type: "javascript",
+        text: "javascript"
     },
     {
-        type: 'react',
-        text: 'react'
+        type: "react",
+        text: "react"
     },
     {
-        type: 'angular',
-        text: 'angular'
+        type: "angular",
+        text: "angular"
     },
     {
-        type: 'offer',
-        text: '面试'
+        type: "offer",
+        text: "面试"
     },
     {
-        type: 'three',
-        text: 'three.js'
+        type: "three",
+        text: "three.js"
     },
     {
-        type: 'mpvue',
-        text: 'mpvue'
+        type: "mpvue",
+        text: "mpvue"
     },
     {
-        type: 'umi',
-        text: 'umi'
+        type: "umi",
+        text: "umi"
     },
     {
-        type: 'dva',
-        text: 'dva'
+        type: "dva",
+        text: "dva"
     }
 ];
 
 // 用户数据
 const userData = [
     {
-        userId: 'yduser' + new Date().getTime(),
-        username: 'kn',
-        password: md5.update('123456').digest("hex"),
-        tel: '18302601558',
-        headUrl: '',
+        userId: "yduser" + new Date().getTime(),
+        username: "kn",
+        password: md5.update("123456").digest("hex"),
+        tel: "18302601558",
+        headUrl: "",
         articles: 0,
         commented: 0,
         createTime: new Date().toLocaleDateString()
@@ -113,13 +113,13 @@ const commentData = [
         sourceUserId: "yduser1541994414695",
         targetUserId: "yduser1541994733725",
         articleId: "kn_1542001279703",
-        commentTime: new Date().toLocaleString(),
+        commentTime: new Date().toLocaleString()
     }
-]
+];
 
 module.exports = {
     labelData,
     userData,
     articleData,
     commentData
-}
+};

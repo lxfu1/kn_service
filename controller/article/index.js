@@ -102,6 +102,23 @@ const attention = async (ctx, next) => {
     ctx.response.body = jsonMiddle(res);
 };
 
+/**
+ * 个人中心， 更具用户Id查询文章
+ */
+const searchByPersonal = async (ctx, next) => {
+    let { page, size } = getUrl(ctx.request.url);
+    let userId = ctx.cookies.get("token");
+    if (!userId) {
+        ctx.response.body = jsonMiddle("", 401, "权限不足");
+        return;
+    }
+    let res = {};
+    await dbModel.searchArticleByPersonal(page, size, userId).then(result => {
+        res = result;
+    });
+    ctx.response.body = jsonMiddle(res);
+};
+
 module.exports = {
     articleList,
     articleDetail,
@@ -110,5 +127,6 @@ module.exports = {
     searchHistory,
     searchByTime,
     searchByType,
-    attention
+    attention,
+    searchByPersonal
 };

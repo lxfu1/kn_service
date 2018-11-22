@@ -1,5 +1,7 @@
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
+const path = require("path");
+const fs = require("fs");
 
 const { userModel, labelModel, articleModel, commentModel, historyModel, attentionModel } = require("./model");
 
@@ -133,6 +135,31 @@ exports.searchArticleByType = (labelId, page, size, keyword) => {
 };
 
 /**
+ * 根据用户信息匹配文章
+ * */
+exports.searchArticleByPersonal = (page, size, author) => {
+    let res = articleModel.findAndCountAll({
+        where: {
+            userId: author
+        },
+        limit: size * 1,
+        offset: (page - 1) * size,
+        order: [["updateTime", "desc"]],
+        include: [
+            {
+                model: userModel,
+                required: true
+            },
+            {
+                model: labelModel,
+                required: true
+            }
+        ]
+    });
+    return res;
+};
+
+/**
  * 热门文章查询
  * 查询最近7天或者30天访问量
  * */
@@ -188,7 +215,6 @@ exports.getUserInfo = phone => {
  * 发表文章较多的用户
  * */
 exports.getRecommendUser = userId => {
-    console.log(userId);
     return userModel.findAll({
         limit: 6,
         offset: 0,
@@ -208,15 +234,82 @@ exports.getRecommendUser = userId => {
 };
 
 /**
+ * 个人中心
+ * 获取用户信息
+ */
+exports.getAuthorInfo = userId => {
+    return userModel.findOne({
+        where: {
+            userId: userId
+        },
+        include: [
+            {
+                model: attentionModel,
+                required: false
+            }
+        ]
+    });
+};
+
+/**
  * 添加用户
  * */
 exports.addUser = params => {
-    return userModel.create({
-        userId: "yd_" + Date.now(),
-        username: params.username,
-        password: params.password,
-        phone: params.phone,
-        createTime: new Date().toDateString()
+    let onlyId = Date.now();
+    return attentionModel
+        .create({
+            attentionId: "yd_" + onlyId,
+            createAt: new Date().toLocaleString()
+        })
+        .then(res => {
+            userModel.create({
+                userId: "yd_" + onlyId,
+                username: params.username,
+                password: params.password,
+                attentionId: "yd_" + onlyId,
+                phone: params.phone,
+                createTime: new Date().toDateString()
+            });
+        });
+};
+
+/**
+ * 更新用户信息
+ */
+exports.updatePersonalInfo = params => {
+    return userModel.update(
+        {
+            username: params.username,
+            describe: params.describe,
+            headUrl: params.headUrl
+        },
+        {
+            where: {
+                userId: params.userId
+            }
+        }
+    );
+};
+
+/**
+ * 根据用户信息获取关注用户
+ */
+exports.getFollowedUser = userId => {
+    return attentionModel.findOne({
+        where: {
+            attentionId: userId
+        }
+    });
+};
+exports.getAttentionUser = (options, page, size) => {
+    return userModel.findAndCount({
+        where: {
+            userId: {
+                [Op.in]: options
+            }
+        },
+        limit: size * 1,
+        offset: (page - 1) * size
     });
 };
 
@@ -259,14 +352,37 @@ exports.modifyPassword = (userId, password) => {
 };
 
 /**
- * 查询用户信息
+ * 密码找回
  */
-exports.getUser = userId => {
-    return userModel.findOne({
-        where: {
-            userId: userId
+exports.findPassword = (phone, password) => {
+    return userModel.update(
+        {
+            password: password
+        },
+        {
+            where: {
+                phone: phone
+            }
         }
-    });
+    );
+};
+
+/**
+ * 查询用户信息
+ * d: 是否删除用户头像
+ */
+exports.getUser = (userId, d) => {
+    return userModel
+        .findOne({
+            where: {
+                userId: userId
+            }
+        })
+        .then(res => {
+            if (d && res.headUrl) {
+                deleteFile(res.headUrl);
+            }
+        });
 };
 
 /**
@@ -277,35 +393,27 @@ exports.getUser = userId => {
  * 维护followedUser：关注了谁
  * */
 exports.addAttention = (userId, attentionedId, status) => {
+    let d = new Date().toLocaleString();
     return attentionModel
-        .findOrCreate({
+        .find({
             where: {
                 attentionId: userId
-            },
-            defaults: {
-                attentionId: userId,
-                followedUser: attentionedId, // 关注了谁
-                follower: "", // 谁关注了我
-                createAt: Date.now().toLocaleDateString,
-                updateAt: Date.now().toLocaleDateString
             }
         })
         .then(res => {
-            if (!res[1]) {
-                if (status === "1") {
-                    res[0].update({
-                        followedUser: res[0].followedUser + "&" + attentionedId,
-                        updateAt: Date.now().toLocaleDateString
-                    });
-                } else {
-                    let existFollowedUser = res[0].followedUser.split("&");
-                    existFollowedUser.splice(existFollowedUser.indexOf(attentionedId), 1);
-                    res[0].update({
-                        followedUser: existFollowedUser.join("&"),
-                        updateAt: Date.now().toLocaleDateString
-                    });
-                }
+            let followed = "";
+            if (status === "1") {
+                followed = res.followedUser ? res.followedUser + "&" + attentionedId : attentionedId;
+            } else {
+                let existFollowedUser = res.followedUser.split("&");
+                existFollowedUser.splice(existFollowedUser.indexOf(attentionedId), 1);
+                followed = existFollowedUser.join("&");
             }
+
+            res.update({
+                followedUser: followed,
+                updateAt: d
+            });
         });
 };
 
@@ -317,35 +425,26 @@ exports.addAttention = (userId, attentionedId, status) => {
  * 维护follower：谁关注了我
  * */
 exports.syncAttention = (userId, attentionedId, status) => {
+    let d = new Date().toLocaleString();
     attentionModel
-        .findOrCreate({
+        .find({
             where: {
                 attentionId: attentionedId
-            },
-            defaults: {
-                attentionId: attentionedId,
-                followedUser: "", // 关注了谁
-                follower: userId, // 谁关注了我
-                createAt: Date.now().toLocaleDateString,
-                updateAt: Date.now().toLocaleDateString
             }
         })
         .then(res => {
-            if (!res[1]) {
-                if (status === "1") {
-                    res[0].update({
-                        follower: res[0].follower + "&" + userId,
-                        updateAt: Date.now().toLocaleDateString
-                    });
-                } else {
-                    let existFollower = res[0].follower.split("&");
-                    existFollower.splice(existFollower.indexOf(userId), 1);
-                    res[0].update({
-                        follower: existFollower.join("&"),
-                        updateAt: Date.now().toLocaleDateString
-                    });
-                }
+            let follower = "";
+            if (status === "1") {
+                follower = res.follower ? res.follower + "&" + userId : userId;
+            } else {
+                let existFollower = res.follower.split("&");
+                existFollower.splice(existFollower.indexOf(userId), 1);
+                follower = existFollower.join("&");
             }
+            res.update({
+                follower: follower,
+                updateAt: d
+            });
         });
 };
 
@@ -395,6 +494,18 @@ const addUserCount = userId => {
                 articleCount: res.articleCount + 1
             });
         });
+};
+
+/**
+ * 删除文章的时候删除图片
+ */
+const deleteFile = filePath => {
+    fs.unlink(path.join(__dirname, "..", filePath), err => {
+        if (err) {
+            throw err;
+        }
+        console.log(filePath + "was deleted");
+    });
 };
 
 //-----------------后台管理系统开始------------------------
@@ -473,11 +584,16 @@ exports.updateArticleAdmin = params => {
  * 删除文章
  */
 exports.deleteArticleAdmin = articleId => {
-    return articleModel.destroy({
-        where: {
-            articleId: articleId
-        }
-    });
+    return articleModel
+        .findOne({
+            where: {
+                articleId: articleId
+            }
+        })
+        .then(res => {
+            deleteFile(res.fileUrl);
+            res.destroy();
+        });
 };
 
 //----------------后台管理系统结束----------------------------
