@@ -59,7 +59,7 @@ module.exports = {
     "GET /kn/articleTopFive": topFiveList,
     "GET /kn/getArticleDetail/:id": articleDetail,
     "GET /kn/getImgCode": imgCode,
-    "GET /kn/getAuthorInfo": authorInfo,
+    "GET /kn/getAuthorInfo/:userId": authorInfo,
     "POST /kn/login": login,
     "GET /kn/logout": logout,
     "GET /kn/getMessageCode/:phone": getPhoneCode,

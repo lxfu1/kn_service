@@ -55,7 +55,7 @@ const recommendUser = async (ctx, next) => {
  * 获取用户信息
  */
 const authorInfo = async (ctx, next) => {
-    let userId = ctx.cookies.get("token");
+    let userId = ctx.params.userId ? ctx.params.userId : ctx.cookies.get("token");
     let res;
     await dbModel.getAuthorInfo(userId).then(result => {
         res = result;
