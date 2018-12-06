@@ -17,8 +17,8 @@ const Router = require("./routers");
  * */
 const redis = require("redis");
 const client = redis.createClient({
-    host: process.env.REDIS_HOST || "127.0.0.1",
-    port: process.env.REDIS_PORT || 6379
+    host: process.env.NODE_ENV === "production" ? "172.16.28.94" : "127.0.0.1",
+    port: process.env.NODE_ENV === "production" ? 6379 : 6379
 });
 // 创建表用的，自执行函数
 // require("./db/createTables");
@@ -94,6 +94,7 @@ app.use(
  * 处理静态文件
  * */
 app.use(staticFiles("/static/", __dirname + "/static/"));
+app.use(staticFiles("/views/", __dirname + "/views/"));
 /**
  * 模板引擎
  * */
@@ -110,3 +111,4 @@ app.on("error", (err, ctx) => {
     console.error("server error", err);
 });
 app.listen(BaseConfig.port);
+console.log("启动成功" + BaseConfig.port);

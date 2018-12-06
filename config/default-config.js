@@ -1,5 +1,5 @@
 const baseConfig = {
-    port: 3000
+    port: process.env.NODE_ENV === "production" ? 80 : 3000
 };
 
 module.exports = baseConfig;

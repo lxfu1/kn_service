@@ -55,7 +55,7 @@ const recommendUser = async (ctx, next) => {
  * 获取用户信息
  */
 const authorInfo = async (ctx, next) => {
-    let userId = ctx.params.userId ? ctx.params.userId : ctx.cookies.get("token");
+    let userId = ctx.params.userId && ctx.params.userId !== "undefined" ? ctx.params.userId : ctx.cookies.get("token");
     let res;
     await dbModel.getAuthorInfo(userId).then(result => {
         res = result;
@@ -182,14 +182,14 @@ const modifyPassword = async (ctx, next) => {
  * 根据用户信息获取关注用户
  */
 const attentionUser = async (ctx, next) => {
-    let { page, size, type } = getUrl(ctx.request.url);
-    const userId = ctx.cookies.get("token");
-    if (!userId) {
+    let { page, size, type, userId } = getUrl(ctx.request.url);
+    const user = userId !== "undefined" ? userId : ctx.cookies.get("token");
+    if (!user) {
         ctx.response.body = jsonMiddle("", 401, "权限不足");
         return;
     }
     let followedUser;
-    await dbModel.getFollowedUser(userId).then(result => {
+    await dbModel.getFollowedUser(user).then(result => {
         followedUser = type === "attention" ? result.get("followedUser") : result.get("follower");
     });
     if (!followedUser) {

@@ -106,14 +106,14 @@ const attention = async (ctx, next) => {
  * 个人中心， 更具用户Id查询文章
  */
 const searchByPersonal = async (ctx, next) => {
-    let { page, size } = getUrl(ctx.request.url);
-    let userId = ctx.cookies.get("token");
-    if (!userId) {
+    let { page, size, userId } = getUrl(ctx.request.url);
+    let user = userId !== "undefined" ? userId : ctx.cookies.get("token");
+    if (!user) {
         ctx.response.body = jsonMiddle("", 401, "权限不足");
         return;
     }
     let res = {};
-    await dbModel.searchArticleByPersonal(page, size, userId).then(result => {
+    await dbModel.searchArticleByPersonal(page, size, user).then(result => {
         res = result;
     });
     ctx.response.body = jsonMiddle(res);

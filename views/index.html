@@ -1,21 +1,28 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <script src="/static/js/jquery.js"></script>
-</head>
-<body>
-<p>我是习大大</p>
-<button id="btn">点我啊</button>
-<p id="bbd"></p>
-<script>
-$('#btn').on('click', function(){
-    $.get('/user/kn', function(res){
-        console.log(res);
-        $('#bbd').text(1);
-    })
-})
-</script>
-</body>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <title>一点博客</title>
+        <link rel="shortcut icon" href="/favicon.ico" />
+        <style>
+            .loading {
+                display: flex;
+                position: absolute;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                right: 0;
+                justify-content: center;
+                align-items: center;
+                font-size: 40px;
+                color: #ccc;
+            }
+        </style>
+    <link href="/views/css/bundle.f387f0c9.css" rel="stylesheet"></head>
+
+    <body>
+        <div id="root"><div class="loading">拼命加载中..........</div></div>
+        <div id="notice"></div>
+    <script type="text/javascript" src="/views/js/vendor.js"></script><script type="text/javascript" src="/views/js/bundle.e83479a3.js"></script></body>
 </html>
