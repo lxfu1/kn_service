@@ -6,7 +6,8 @@ const path = require("path");
 const cors = require("koa-cors");
 const json = require("koa-json");
 const { templating, staticFiles } = require("./utils");
-const views = require("koa-views");
+const staticCache = require("koa-static-cache");
+const compress = require("koa-compress");
 const koaBody = require("koa-body");
 const myLog = require("koa-sam-log");
 const BaseConfig = require("./config/default-config");
@@ -22,7 +23,7 @@ const client = redis.createClient({
 });
 // 创建表用的，自执行函数
 // require("./db/createTables");
-const isProduction = process.env.NODE_ENV === "production";
+const isDevelopment = process.env.NODE_ENV === "development";
 const app = new Koa();
 global.redisClient = client;
 
@@ -70,6 +71,11 @@ app.use(
         }
     )
 );
+/**
+ * gizp压缩
+ */
+const options = { threshold: 2048 };
+app.use(compress(options));
 
 /**
  * 处理post请求
@@ -92,16 +98,29 @@ app.use(
 
 /**
  * 处理静态文件
+ * 此处有重大安全漏洞！
  * */
-app.use(staticFiles("/static/", __dirname + "/static/"));
-app.use(staticFiles("/views/", __dirname + "/views/"));
+// app.use(staticFiles("/static/", __dirname + "/static/"));
+// app.use(staticFiles("/views/", __dirname + "/views/"));
+// app.use(
+//     staticCache(path.join(__dirname, "views"), {
+//         maxAge: 5 * 24 * 60 * 60
+//     })
+// );
+app.use(
+    staticCache(path.join(__dirname, "static"), {
+        maxAge: 5 * 24 * 60 * 60,
+        dynamic: true
+    })
+);
+
 /**
  * 模板引擎
  * */
 app.use(
-    templating("views", {
-        noCache: !isProduction,
-        watch: !isProduction
+    templating("static", {
+        noCache: !isDevelopment,
+        watch: !isDevelopment
     })
 );
 app.use(Router.routes());

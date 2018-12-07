@@ -21,11 +21,12 @@ exports.addArticle = ctx => {
     var now = Date.now();
     var date = new Date();
     addUserCount(ctx.userId);
+    var fileUrl = ctx.fileUrl ? ctx.fileUrl.substring(7) : "";
     return articleModel.create({
         articleId: "article_" + now,
         title: ctx.title,
         introduction: ctx.introduction,
-        fileUrl: ctx.fileUrl || "",
+        fileUrl: fileUrl,
         detail: ctx.detail,
         userId: ctx.userId,
         labelId: ctx.type,
@@ -500,11 +501,16 @@ const addUserCount = userId => {
  * 删除文章的时候删除图片
  */
 const deleteFile = filePath => {
-    fs.unlink(path.join(__dirname, "..", filePath), err => {
-        if (err) {
-            throw err;
+    filePath = "/static" + filePath;
+    fs.exists(path.join(__dirname, "..", filePath), function(exists) {
+        if (exists) {
+            fs.unlink(path.join(__dirname, "..", filePath), err => {
+                if (err) {
+                    throw err;
+                }
+                console.log(filePath + "was deleted");
+            });
         }
-        console.log(filePath + "was deleted");
     });
 };
 
@@ -563,11 +569,12 @@ exports.getArticleDetailAdmin = articleId => {
  */
 exports.updateArticleAdmin = params => {
     var date = new Date();
+    var fileUrl = params.fileUrl ? params.fileUrl.substring(7) : "";
     return articleModel.update(
         {
             title: params.title,
             introduction: params.introduction,
-            fileUrl: params.fileUrl || "",
+            fileUrl: fileUrl,
             detail: JSON.stringify(params.detail),
             labelId: params.type,
             updateTime: date.toLocaleString()

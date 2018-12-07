@@ -38,7 +38,7 @@ const deleteArticle_admin = async (ctx, next) => {
  */
 const updateArticle_admin = async (ctx, next) => {
     let params = ctx.request.body;
-    if (!params.artilce) {
+    if (!params.articleId) {
         ctx.response.body = jsonMiddle("", 400, "没有相关文章");
         return;
     }
