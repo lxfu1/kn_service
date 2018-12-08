@@ -8,6 +8,8 @@ const json = require("koa-json");
 const { templating, staticFiles } = require("./utils");
 const staticCache = require("koa-static-cache");
 const compress = require("koa-compress");
+const conditional = require("koa-conditional-get");
+const etag = require("koa-etag");
 const koaBody = require("koa-body");
 const myLog = require("koa-sam-log");
 const BaseConfig = require("./config/default-config");
@@ -43,6 +45,12 @@ app.use(async (ctx, next) => {
         ctx.app.emit("error", err, ctx);
     }
 });
+
+/**
+ * etag
+ */
+// app.use(conditional());
+// app.use(etag());
 
 /**
  * 解决跨域问题

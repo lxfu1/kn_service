@@ -41,8 +41,12 @@ const createArticle = async (ctx, next) => {
 };
 
 const uploadArticleFile = async (ctx, next) => {
+    let fileUrl = ctx.request.files.file.path.replace(/\\/g, "/").split("kn_service")[1];
+    if(fileUrl){
+        fileUrl = fileUrl.substring(7)
+    }
     let data = {
-        fileUrl: ctx.request.files.file.path.replace(/\\/g, "/").split("kn_service")[1]
+        fileUrl: fileUrl
     };
     ctx.response.body = jsonMiddle(data);
 };
