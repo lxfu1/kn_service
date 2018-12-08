@@ -171,7 +171,7 @@ exports.searchArticleByTime = (page, size, type) => {
                 [Op.gt]: new Date(new Date() - (type == 7 ? 7 : 30) * 24 * 60 * 60 * 1000)
             }
         },
-        order: [["createTime", "desc"]],
+        order: [["scans", "desc"]],
         limit: size * 1,
         offset: (page - 1) * size,
         include: [
@@ -278,11 +278,12 @@ exports.addUser = params => {
  * 更新用户信息
  */
 exports.updatePersonalInfo = params => {
+    var headUrl = params.headUrl ? params.headUrl.substring(7) : "";
     return userModel.update(
         {
             username: params.username,
             describe: params.describe,
-            headUrl: params.headUrl
+            headUrl: headUrl
         },
         {
             where: {
