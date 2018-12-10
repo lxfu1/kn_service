@@ -215,23 +215,45 @@ exports.getUserInfo = phone => {
  * 查询推荐用户
  * 发表文章较多的用户
  * */
-exports.getRecommendUser = userId => {
-    return userModel.findAll({
-        limit: 6,
-        offset: 0,
-        order: [["articleCount", "desc"]],
-        where: {
-            userId: {
-                [Op.ne]: userId ? userId : ""
-            }
-        },
-        include: [
-            {
-                model: attentionModel,
-                required: false
-            }
-        ]
-    });
+exports.getRecommendUser = (userId, page, size) => {
+    if (!page) {
+        return userModel.findAll({
+            limit: 6,
+            offset: 0,
+            order: [["articleCount", "desc"]],
+            where: {
+                userId: {
+                    [Op.ne]: userId ? userId : ""
+                },
+                articleCount: {
+                    [Op.gt]: 0
+                }
+            },
+            include: [
+                {
+                    model: attentionModel,
+                    required: false
+                }
+            ]
+        });
+    } else {
+        return userModel.findAndCountAll({
+            limit: size * 1,
+            offset: (page - 1) * size,
+            order: [["articleCount", "desc"]],
+            where: {
+                articleCount: {
+                    [Op.gt]: 0
+                }
+            },
+            include: [
+                {
+                    model: attentionModel,
+                    required: false
+                }
+            ]
+        });
+    }
 };
 
 /**
@@ -448,6 +470,56 @@ exports.syncAttention = (userId, attentionedId, status) => {
                 updateAt: d
             });
         });
+};
+
+/**
+ * 文章评论
+ * @param(comments)： 评论内容
+ * @param(articleId)：文章Id
+ * @param(replayId): 恢复Id
+ * @param(userId): 用户Id
+ */
+exports.addComments = (comments, articleId, replayId, userId) => {
+    console.log(comments, replayId);
+    commentModel.create({
+        commentId: "cm_" + Date.now(),
+        comments: comments,
+        userId: userId,
+        articleId: articleId,
+        replayId: replayId || null,
+        commentTime: new Date().toLocaleString()
+    });
+    //更新文章评论数量
+    articleModel
+        .findOne({
+            where: {
+                articleId: articleId
+            }
+        })
+        .then(res => {
+            res.update({
+                comments: res.comments + 1
+            });
+        });
+};
+
+/**
+ * 评论列表
+ * @param(articleId): 文章Id
+ */
+exports.getCommentsList = articleId => {
+    return commentModel.findAndCountAll({
+        where: {
+            articleId: articleId
+        },
+        order: [["commentTime", "desc"]],
+        include: [
+            {
+                model: userModel,
+                required: true
+            }
+        ]
+    });
 };
 
 /**

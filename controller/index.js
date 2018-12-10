@@ -14,7 +14,9 @@ const {
     searchHistory,
     searchByTime,
     attention,
-    searchByPersonal
+    searchByPersonal,
+    addComments,
+    commentsList
 } = require("./article");
 
 // 登录注册
@@ -47,6 +49,8 @@ module.exports = {
     "POST /kn/addArticle": createArticle,
     "POST /kn/upload": uploadArticleFile,
     "POST /kn/addLabel": createLabels,
+    "POST /kn/addComments": addComments,
+    "GET /kn/commentList/:articeId": commentsList,
     "POST /kn/modifyPassword": modifyPassword,
     "GET /kn/articleList": articleList,
     "GET /kn/searchByTime": searchByTime,

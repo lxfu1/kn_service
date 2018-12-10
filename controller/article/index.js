@@ -119,6 +119,44 @@ const searchByPersonal = async (ctx, next) => {
     ctx.response.body = jsonMiddle(res);
 };
 
+/**
+ * 添加评论
+ */
+const addComments = async (ctx, next) => {
+    const { comments, articleId, replayId } = ctx.request.body;
+    const userId = ctx.cookies.get("token");
+    if (!userId) {
+        ctx.response.body = jsonMiddle("", 401, "请先登录");
+        return;
+    }
+    if (!articleId) {
+        ctx.response.body = jsonMiddle("", 200, "文章不存在");
+        return;
+    }
+    if (!comments) {
+        ctx.response.body = jsonMiddle("", 400, "评论内容不能为空");
+        return;
+    }
+    ctx.response.body = jsonMiddle("评论成功");
+    dbModel.addComments(comments, articleId, replayId, userId);
+};
+/**
+ * 评论列表
+ */
+const commentsList = async (ctx, next) => {
+    const articeId = ctx.params.articeId;
+    console.log(articeId);
+    if (!articeId || articeId === "undefined") {
+        ctx.response.body = jsonMiddle("", 200, "文章不存在");
+        return;
+    }
+    let res = {};
+    await dbModel.getCommentsList(articeId).then(result => {
+        res = result;
+    });
+    ctx.response.body = jsonMiddle(res);
+};
+
 module.exports = {
     articleList,
     articleDetail,
@@ -128,5 +166,7 @@ module.exports = {
     searchByTime,
     searchByType,
     attention,
-    searchByPersonal
+    searchByPersonal,
+    addComments,
+    commentsList
 };

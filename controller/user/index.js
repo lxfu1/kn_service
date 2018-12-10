@@ -43,9 +43,10 @@ const logout = async (ctx, next) => {
  * 推荐用户
  * */
 const recommendUser = async (ctx, next) => {
+    let { page, size } = getUrl(ctx.request.url);
     let userId = ctx.cookies.get("token");
     let res;
-    await dbModel.getRecommendUser(userId).then(result => {
+    await dbModel.getRecommendUser(userId, page, size).then(result => {
         res = result;
     });
     ctx.response.body = jsonMiddle(res);

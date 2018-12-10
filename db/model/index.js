@@ -100,17 +100,16 @@ const comment = {
         type: Sequelize.STRING,
         allowNull: false
     },
-    sourceUserId: {
-        type: Sequelize.STRING,
-        allowNull: false
-    },
-    targetUserId: {
+    userId: {
         type: Sequelize.STRING,
         allowNull: false
     },
     articleId: {
         type: Sequelize.STRING,
         allowNull: false
+    },
+    replayId: {
+        type: Sequelize.STRING
     },
     commentTime: Sequelize.DATE
 };
@@ -150,6 +149,7 @@ const historyModel = sequelize.define("history", history, { timestamps: false })
 articleModel.belongsTo(userModel, { foreignKey: "userId" });
 articleModel.belongsTo(labelModel, { foreignKey: "labelId" });
 userModel.belongsTo(attentionModel, { foreignKey: "attentionId" });
+commentModel.belongsTo(userModel, { foreignKey: "userId" });
 
 module.exports = {
     userModel,
